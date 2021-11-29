@@ -1,0 +1,17 @@
+{
+    "name": "dgit-dev/ostar-cloudprnt-for-woocommerce",
+    "description": "Adds receipt printing for compatible Star CloudPrnt devices",
+    "homepage": "https://github.com/dgit-dev/star-cloudprnt-for-woocommerce",
+    "version": "2.0.3-dgit",
+    "license": "UNLICENSED",
+    "authors": [
+      {
+        "name": "Darren Griffin",
+        "homepage": "https://dgitally.co.uk"
+      }
+    ],
+    "require": {
+      "php": ">7.3"
+    },
+    "type": "wordpress-plugin"
+  }
