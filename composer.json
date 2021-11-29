@@ -2,7 +2,7 @@
     "name": "dgit-dev/ostar-cloudprnt-for-woocommerce",
     "description": "Adds receipt printing for compatible Star CloudPrnt devices",
     "homepage": "https://github.com/dgit-dev/star-cloudprnt-for-woocommerce",
-    "version": "2.0.3-dgit",
+    "version": "2.0.3",
     "license": "UNLICENSED",
     "authors": [
       {
