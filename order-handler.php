@@ -62,30 +62,13 @@ function star_cloudprnt_print_items(&$printer, &$selectedPrinter, &$order, &$ord
 
 		$product_line = star_cloudprnt_filter_html($product_name . $product_info);
 
+		do_action('star_cloudprnt_before_item_name', $item_data, $printer);
+
 		$printer->set_text_emphasized();
 		$printer->add_text_line(star_cloudprnt_get_column_separated_data([$item_qty . ' x ' . $product_line, $formatted_total_price], $selectedPrinter['columns']));
 		$printer->cancel_text_emphasized();
 
-		$extras = carbon_get_theme_option('dgit_wcpe_extras');
-
-		$extras_to_add = [];
-
-		foreach ($extras as $extra) {
-			$extras_to_add[] = $extra['name'];
-		}
-
-		$extra_lines = [];
-
-		foreach ($item_data->get_meta_data() as $meta) {
-			if (in_array($meta->get_data()['key'], $extras_to_add)) {
-				$extra_lines[$meta->get_data()['key']] = $meta->get_data()['value'];
-			}
-		}
-		foreach ($extra_lines as $extra => $values) {
-
-			$printer->add_text_line(' ' . $extra . ':');
-			$printer->add_text_line('  ' . implode(", ", $values));
-		}
+		do_action('star_cloudprnt_after_item_name', $item_data, $printer);
 
 		$meta = $item_data->get_formatted_meta_data("_", TRUE);
 
