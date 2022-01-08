@@ -25,6 +25,7 @@ include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('cloudprnt/p
 // Include plugin page settings and woo commerce hooks
 include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('create-settings.php'));
 include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('order-handler.php'));
+include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('kds.php'));
 
 star_cloudprnt_register_settings();
 
