@@ -30,7 +30,7 @@ function dgit_wckds_actions_star_cloud_print_automatic($actions) {
 
     $actions[] = [
         'label' => 'Automatic Receipts',
-        'state' => (get_option('star-cloudprnt-trigger') == 'status_processing'),
+        'state' => (get_option('star-cloudprnt-trigger') == 'thankyou'),
         'order_required' => false,
         'action' => 'dgit_wckds_actions_star_cloud_print_handler',
         'action_position' => 'left'
@@ -52,10 +52,10 @@ function dgit_wckds_actions_star_cloud_print_handler() {
         return;
     }
     $state = get_option('star-cloudprnt-trigger');
-    if ($state == 'status_processing') {
+    if ($state == 'thankyou') {
         update_option('star-cloudprnt-trigger', 'none');
     } elseif ($state == 'none') {
-        update_option('star-cloudprnt-trigger', 'status_processing');
+        update_option('star-cloudprnt-trigger', 'thankyou');
     }
     die();
 }
