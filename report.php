@@ -13,6 +13,7 @@ function star_cloudprnt_print_end_of_day_report() {
     $orders = wc_get_orders([
         'limit' => -1,
         'status' => 'wc-completed',
+        'type' => 'shop_order',
         'date_query' => array(
             'after' => $from,
             'before' => $to
