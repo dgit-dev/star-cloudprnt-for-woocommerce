@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Star CloudPRNT for WooCommerce
  * Description: Star CloudPRNT for WooCommerce enables cloud printing technology with your Star Receipt printer.
- * Version: 2.0.3.2
+ * Version: 2.0.3.3
  * Author: dgit
  * Plugin URI: https://github.com/dgit-dev/star-cloudprnt-for-woocommerce
  * Requires at least: 5.0
