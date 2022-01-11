@@ -182,6 +182,67 @@ function star_cloudprnt_trigger_print($order_id) {
 	}
 }
 
+function star_cloudprnt_get_printer() {
+
+	$extension = STAR_CLOUDPRNT_SPOOL_FILE_FORMAT;
+
+	$selectedPrinterMac = "";
+	$selectedPrinter = array();
+	$printerList = star_cloudprnt_get_printer_list();
+	if (!empty($printerList)) {
+
+		foreach ($printerList as $printer) {
+			if (get_option('star-cloudprnt-printer-select') == $printer['name']) {
+				$selectedPrinter = $printer;
+				$selectedPrinterMac = $printer['printerMAC'];
+				break;
+			}
+		}
+
+		// If no printer has been selected, then choose the first one on the list
+		if (sizeof($selectedPrinter) == 0) {
+			$selectedPrinter = $printerList[0];
+		}
+
+		/* Decide best printer emulation and print width as far as possible
+			   NOTE: this is not the ideal way, but suits the existing
+			   code structure. Will be reviewed.
+			   */
+
+		$encodings = $selectedPrinter['Encodings'];
+		$columns = STAR_CLOUDPRNT_MAX_CHARACTERS_THREE_INCH;
+		if (strpos($encodings, "application/vnd.star.line;") !== false) {
+			/* There is no guarantee that printers will always return zero spacing between
+				   the encoding name and separating semi-colon. But, definitely the HIX does, socket_accept
+				   this is enough to ensure that thermal print mode is always used on HIX printers
+				   with pre 1.5 firmware. This matches older plugin behaviour and therefore
+				   avoids breaking customer sites.
+				*/
+			$extension = "slt";
+		} else if (strpos($encodings, "application/vnd.star.linematrix") !== false) {
+			$extension = "slm";
+			$columns = STAR_CLOUDPRNT_MAX_CHARACTERS_DOT_THREE_INCH;
+		} else if (strpos($encodings, "application/vnd.star.line") !== false) {
+			// a second check for Line mode - just in case the above one didn't catch item
+			// and after the "linemodematrix" check, to avoid a false match.
+			$extension = "slt";
+		} else if (strpos($encodings, 'application/vnd.star.starprnt') !== false) {
+			$extension = "spt";
+		} else if (strpos($encodings, "text/plain") !== false) {
+			$extension = "txt";
+		}
+
+		if ($selectedPrinter['ClientType'] == "Star mC-Print2") {
+			$columns = STAR_CLOUDPRNT_MAX_CHARACTERS_TWO_INCH;
+		}
+
+		$selectedPrinter['format'] = $extension;
+		$selectedPrinter['columns'] = $columns;
+
+		return $selectedPrinter;
+	}
+}
+
 // Insert the "Reprint vis Star CloudPRNT" order action to the list
 function star_cloudprnt_order_reprint_action($actions) {
 	global $theorder;

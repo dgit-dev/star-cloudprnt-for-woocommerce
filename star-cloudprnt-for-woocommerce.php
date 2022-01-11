@@ -26,6 +26,7 @@ include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('cloudprnt/p
 include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('create-settings.php'));
 include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('order-handler.php'));
 include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('kds.php'));
+include_once(plugin_dir_path(__FILE__) . star_cloudprnt_get_os_path('report.php'));
 
 star_cloudprnt_register_settings();
 
