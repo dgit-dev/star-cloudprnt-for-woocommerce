@@ -32,17 +32,24 @@ function star_cloudprnt_print_end_of_day_report() {
         $total_order_costs += $order->get_total();
     }
 
+
+    do_action('star_cloudprnt_before_day_end_report_title', $printer);
     $printer->set_font_magnification(2, 2);
     $printer->add_text_line('Day End Report');
     $printer->set_font_magnification(1, 1);
+    do_action('star_cloudprnt_after_day_end_report_title', $printer);
 
+    do_action('star_cloudprnt_before_day_end_report_explanation', $printer);
     $printer->add_text_line(wordwrap('Report ran on orders that were marked as completed between the following dates:', $selectedPrinter['columns'], "\n", true));
     $printer->add_new_line(1);
+    do_action('star_cloudprnt_after_day_end_report_explanation', $printer);
 
 
+    do_action('star_cloudprnt_before_day_end_report_dates', $printer);
     $printer->add_text_line(sprintf('From: %s', $from));
     $printer->add_text_line(sprintf('To: %s', $to));
     $printer->add_text_line(str_repeat('-', $selectedPrinter['columns']));
+    do_action('star_cloudprnt_after_day_end_report_dates', $printer);
 
     $printer->add_text_line(sprintf('Orders: %s', count($orders)));
 
