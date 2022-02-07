@@ -242,15 +242,21 @@ function star_cloudprnt_print_receipt_header(&$printer, &$selectedPrinter, &$ord
 	}
 
 	// Print header info area
+	do_action('star_cloudprnt_before_order_details_header', $order, $printer);
 	$pw("Order Status: " . wc_get_order_statuses()['wc-' . $order->get_status()]);
 	$order_date = date("{$date_format} {$time_format}", $order->get_date_created()->getOffsetTimestamp());
 	$pw("Order Date: {$order_date}");
+	do_action('star_cloudprnt_after_order_details_header', $order, $printer);
 
+	do_action('star_cloudprnt_before_payment_header', $order, $printer);
 	$printer->add_new_line(1);
 	if (isset($shipping_items['name'])) {
 		$pw("Shipping Method: " . $shipping_items['name']);
 	}
 	$pw("Payment Method: " . $order_meta['_payment_method_title'][0]);
+	do_action('star_cloudprnt_after_payment_header', $order, $printer);
+
+	do_action('star_cloudprnt_after_header', $order, $printer);
 }
 
 // Print heading above the items list
