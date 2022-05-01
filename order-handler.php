@@ -62,10 +62,22 @@ function star_cloudprnt_print_items(&$printer, &$selectedPrinter, &$order, &$ord
 
 		$product_line = star_cloudprnt_filter_html($product_name . $product_info);
 
+		$product_line_prefix = $item_qty . ' x ';
+		$product_line_suffix = $formatted_total_price;
+		$product_line_length = strlen($product_line_prefix . $product_line . $product_line_suffix);
+
+		$truncate_amount = $product_line_length - $selectedPrinter['columns'];
+
+		if ($truncate_amount > 0) {
+			$product_truncated = substr($product_line, 0, - ($truncate_amount + 3)) . '...';
+		} else {
+			$product_truncated = $product_line;
+		}
+
 		do_action('star_cloudprnt_before_item_name', $item_data, $printer);
 
 		$printer->set_text_emphasized();
-		$printer->add_text_line(star_cloudprnt_get_column_separated_data([$item_qty . ' x ' . $product_line, $formatted_total_price], $selectedPrinter['columns']));
+		$printer->add_text_line(star_cloudprnt_get_column_separated_data([$product_line_prefix . $product_truncated, $product_line_suffix], $selectedPrinter['columns']));
 		$printer->cancel_text_emphasized();
 
 		do_action('star_cloudprnt_after_item_name', $item_data, $printer);
