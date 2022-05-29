@@ -78,3 +78,24 @@ function dgit_wckds_actions_star_cloud_reprint_handler() {
     die();
 }
 add_action('wp_ajax_dgit_wckds_actions_star_cloud_reprint_handler', 'dgit_wckds_actions_star_cloud_reprint_handler');
+
+
+function dgit_wkds_menu_printer_settings() {
+    $menu_enable_printer = new KDSCheckboxMenuItem('Enable Printer', 'enable_printer');
+
+    $menu = new KDSParentMenuItem('Receipt Printer Settings', null, [$menu_enable_printer]);
+    echo $menu->getHTML();
+}
+add_action('dgit_wkds_main_menu', 'dgit_wkds_menu_printer_settings', 20);
+
+function dgit_wkds_floating_order_menu_reprint_receipt_seperator() {
+    $item = new KDSSeparatorMenuItem();
+    echo $item->getHTML();
+}
+add_action('dgit_wkds_floating_order_menu', 'dgit_wkds_floating_order_menu_reprint_receipt_seperator', 21);
+
+function dgit_wkds_floating_order_menu_reprint_receipt() {
+    $item = new KDSButtonMenuItem('Reprint Receipt');
+    echo $item->getHTML();
+}
+add_action('dgit_wkds_floating_order_menu', 'dgit_wkds_floating_order_menu_reprint_receipt', 22);
