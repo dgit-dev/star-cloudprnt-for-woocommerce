@@ -64,7 +64,6 @@ add_action('wp_ajax_dgit_wckds_actions_star_cloud_print_handler', 'dgit_wckds_ac
 function dgit_wckds_actions_star_cloud_reprint_handler() {
 
     $data = json_decode(file_get_contents("php://input"), true);
-
     if (!wp_verify_nonce($data['nonce'], 'kds')) {
         die();
     }
@@ -72,7 +71,6 @@ function dgit_wckds_actions_star_cloud_reprint_handler() {
     if (!function_exists('star_cloudprnt_setup_order_handler')) {
         return;
     }
-    $data = json_decode(file_get_contents("php://input"), true);
     $order = $data['order'];
     star_cloudprnt_trigger_print($order);
     die();
@@ -80,22 +78,96 @@ function dgit_wckds_actions_star_cloud_reprint_handler() {
 add_action('wp_ajax_dgit_wckds_actions_star_cloud_reprint_handler', 'dgit_wckds_actions_star_cloud_reprint_handler');
 
 
-function dgit_wkds_menu_printer_settings() {
-    $menu_enable_printer = new KDSCheckboxMenuItem('Enable Printer', 'enable_printer');
+// NEW KDS ACTIONS
 
-    $menu = new KDSParentMenuItem('Receipt Printer Settings', null, [$menu_enable_printer]);
-    echo $menu->getHTML();
-}
-add_action('dgit_wkds_main_menu', 'dgit_wkds_menu_printer_settings', 20);
+function star_cloudprnt_toggle_automatic_receipt_printing() {
+    if (!wp_verify_nonce($_POST['nonce'], 'dgit-wkds')) {
+        echo json_encode(['success' => false, 'error' => 'Invalid nonce']);
+        die();
+    }
 
-function dgit_wkds_floating_order_menu_reprint_receipt_seperator() {
-    $item = new KDSSeparatorMenuItem();
-    echo $item->getHTML();
-}
-add_action('dgit_wkds_floating_order_menu', 'dgit_wkds_floating_order_menu_reprint_receipt_seperator', 21);
+    if (!function_exists('star_cloudprnt_setup_order_handler')) {
+        echo json_encode(['success' => false, 'Missing order handler']);
+        die();
+    }
 
-function dgit_wkds_floating_order_menu_reprint_receipt() {
-    $item = new KDSButtonMenuItem('Reprint Receipt');
-    echo $item->getHTML();
+    $state = get_option('star-cloudprnt-trigger');
+    if ($state == 'thankyou') {
+        update_option('star-cloudprnt-trigger', 'none');
+    } elseif ($state == 'none') {
+        update_option('star-cloudprnt-trigger', 'thankyou');
+    }
+
+    echo json_encode(['success' => true, 'state' => $state == 'none']);
+    die();
 }
-add_action('dgit_wkds_floating_order_menu', 'dgit_wkds_floating_order_menu_reprint_receipt', 22);
+add_action('wp_ajax_star_cloudprnt_toggle_automatic_receipt_printing', 'star_cloudprnt_toggle_automatic_receipt_printing');
+
+function star_cloudprnt_add_actions_to_main_menu($items, $menu_context) {
+    if (!defined('DGIT_WKDS_FILE')) {
+        return $items;
+    }
+
+    if ($menu_context !== 'main') {
+        return $items;
+    }
+
+    $automatic = new KDSCheckboxMenuItem('star_cloudprnt_automatic_receipts', 'Automatic Receipts', 'automatic_receipts', get_option('star-cloudprnt-trigger') == 'thankyou');
+    $automatic->setCallback('star_cloudprnt_toggle_automatic_receipt_printing');
+
+    $receipt_menu = new KDSParentMenuItem('star_cloudprnt_receipt_printing_menu', 'Receipt Printing', 'Receipt Printing', 'star_cloudprnt_receipt_printing_submenu', [$automatic]);
+
+
+    $items[] = $receipt_menu;
+
+
+    return $items;
+}
+add_filter('dgit_wkds_menu', 'star_cloudprnt_add_actions_to_main_menu', 30, 2);
+
+function star_cloudprnt_add_actions_to_floating_menu($items, $menu_context) {
+    if (!defined('DGIT_WKDS_FILE')) {
+        return $items;
+    }
+
+    if ($menu_context !== 'floating') {
+        return $items;
+    }
+
+    $reprint = new KDSButtonMenuItem('star_cloudprnt_reprint_receipt', 'Reprint Receipt');
+    $reprint->setCallback('star_cloudprnt_print_kds_receipt');
+
+
+    $items[] = $reprint;
+
+
+    return $items;
+}
+add_filter('dgit_wkds_menu', 'star_cloudprnt_add_actions_to_floating_menu', 30, 2);
+
+
+function star_cloudprnt_print_kds_receipt() {
+
+    if (!wp_verify_nonce($_POST['nonce'], 'dgit-wkds')) {
+        echo json_encode(['success' => false, 'error' => 'Invalid nonce']);
+        die();
+    }
+
+    if (!function_exists('star_cloudprnt_setup_order_handler')) {
+        echo json_encode(['success' => false, 'Missing order handler']);
+        die();
+    }
+
+    $order = $_POST['order'];
+
+    if (!$order) {
+        echo json_encode(['success' => false, 'Missing order number']);
+        die();
+    }
+
+    star_cloudprnt_trigger_print($order);
+
+    echo json_encode(['success' => true]);
+    die();
+}
+add_action('wp_ajax_star_cloudprnt_print_kds_receipt', 'star_cloudprnt_print_kds_receipt');
