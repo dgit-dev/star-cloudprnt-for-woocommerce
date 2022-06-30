@@ -115,7 +115,13 @@ function star_cloudprnt_add_actions_to_main_menu($items, $menu_context) {
     $automatic = new KDSCheckboxMenuItem('star_cloudprnt_automatic_receipts', 'Automatic Receipts', 'automatic_receipts', get_option('star-cloudprnt-trigger') == 'thankyou');
     $automatic->setCallback('star_cloudprnt_toggle_automatic_receipt_printing');
 
-    $receipt_menu = new KDSParentMenuItem('star_cloudprnt_receipt_printing_menu', 'Receipt Printing', 'Receipt Printing', 'star_cloudprnt_receipt_printing_submenu', [$automatic]);
+    $eod_report = new KDSButtonMenuItem('star_cloudprnt_eod_report', 'Print End of Day Report', __('Are you sure you want to print the end of day report?', DGIT_WKDS_TEXT_DOMAIN));
+    $eod_report->setCallback('star_cloudprnt_kds_print_end_of_day_report');
+
+    $clear_queue = new KDSButtonMenuItem('star_cloudprnt_clear_queue', 'Clear Print Queue', __('Are you sure you want to clear the queue?', DGIT_WKDS_TEXT_DOMAIN));
+    $clear_queue->setCallback('star_cloudprnt_kds_clear_queue');
+
+    $receipt_menu = new KDSParentMenuItem('star_cloudprnt_receipt_printing_menu', 'Receipt Printing', 'Receipt Printing', 'star_cloudprnt_receipt_printing_submenu', [$automatic, $eod_report, $clear_queue]);
 
 
     $items[] = $receipt_menu;
@@ -124,6 +130,43 @@ function star_cloudprnt_add_actions_to_main_menu($items, $menu_context) {
     return $items;
 }
 add_filter('dgit_wkds_menu', 'star_cloudprnt_add_actions_to_main_menu', 30, 2);
+
+function star_cloudprnt_kds_print_end_of_day_report() {
+    if (!wp_verify_nonce($_POST['nonce'], 'dgit-wkds')) {
+        echo json_encode(['success' => false, 'error' => 'Invalid nonce']);
+        die();
+    }
+
+    if (!function_exists('star_cloudprnt_setup_order_handler')) {
+        echo json_encode(['success' => false, 'Missing order handler']);
+        die();
+    }
+
+    star_cloudprnt_print_end_of_day_report();
+
+    echo json_encode(['success' => true]);
+    die();
+}
+add_action('wp_ajax_star_cloudprnt_kds_print_end_of_day_report', 'star_cloudprnt_kds_print_end_of_day_report');
+
+function star_cloudprnt_kds_clear_queue() {
+    if (!wp_verify_nonce($_POST['nonce'], 'dgit-wkds')) {
+        echo json_encode(['success' => false, 'error' => 'Invalid nonce']);
+        die();
+    }
+
+    if (!function_exists('star_cloudprnt_setup_order_handler')) {
+        echo json_encode(['success' => false, 'Missing order handler']);
+        die();
+    }
+
+    $printer_mac = get_option('star-cloudprnt-printer-select');
+    star_cloudprnt_queue_clear_list($printer_mac);
+
+    echo json_encode(['success' => true]);
+    die();
+}
+add_action('wp_ajax_star_cloudprnt_kds_clear_queue', 'star_cloudprnt_kds_clear_queue');
 
 function star_cloudprnt_add_actions_to_floating_menu($items, $menu_context) {
     if (!defined('DGIT_WKDS_FILE')) {

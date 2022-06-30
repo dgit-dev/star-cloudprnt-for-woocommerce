@@ -67,13 +67,15 @@ function star_cloudprnt_print_end_of_day_report() {
     $printer->cut();
     $printer->printjob(1);
 
-    die(json_encode([
+    $report = json_encode([
         $order_costs,
         'date_query' => array(
             'after' => $from,
             'before' => $to
         )
-    ]));
+    ]);
+
+    return $report;
 }
 
 add_action('wp_ajax_star_cloudprnt_print_end_of_day_report', 'star_cloudprnt_print_end_of_day_report');
