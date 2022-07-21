@@ -128,4 +128,3 @@
 			unlink($this->tempFilePath);
 		}
 	}
-?>

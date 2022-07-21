@@ -236,4 +236,3 @@
 			unlink($this->tempFilePath);
 		}
 	}
-?>

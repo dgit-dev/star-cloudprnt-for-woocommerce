@@ -142,7 +142,11 @@ function star_cloudprnt_kds_print_end_of_day_report() {
         die();
     }
 
-    star_cloudprnt_print_end_of_day_report();
+    if (defined('DGIT_WSL_DIR')) {
+        star_cloudprnt_print_end_of_day_report_locations();
+    } else {
+        star_cloudprnt_print_end_of_day_report();
+    }
 
     echo json_encode(['success' => true]);
     die();
